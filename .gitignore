@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.tsbuildinfo
+
+# Logs
+npm-debug.log*
+yarn-error.log*
+*.log
+
+# Environment variables
+.env
+.env.local
+
+# Test coverage
+coverage/
+
+# OS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+
+# Learning notes
+/docs
+
+# Claude Code
+.claude/
