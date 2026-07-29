@@ -36,7 +36,13 @@ async function showBoard() {
     });
 }
 
+async function resisterGame() {
+    await fetch('/api/games', {
+        method: 'POST'
+    });
+}
 async function main() {
     await showBoard();
+    await resisterGame();
 }
 main();
