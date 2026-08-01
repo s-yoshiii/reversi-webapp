@@ -36,12 +36,7 @@ app.get('/api/error', async(req, res) => {
 
 app.post('/api/games', async(req,res)=> {
     const now = new Date();
-    const conn = await mysql.createConnection({
-        host: 'localhost',
-        database:'reversi',
-        user: 'reversi',
-        password:'password'
-    });
+    const conn = await connectMySQL();
     try {
         await conn.beginTransaction();
         const gameInsertResult = await conn.execute<mysql.ResultSetHeader>('insert into games (started_at) values (?)', [now]);
@@ -69,7 +64,34 @@ app.post('/api/games', async(req,res)=> {
         await conn.end();
     }
     res.status(201).end();
-})
+});
+
+app.get('/api/games/:turnCount', async(req,res)=>{
+    const turnCount = parseInt(req.params.turnCount);
+    const conn = await connectMySQL();
+    try {
+        const gameSelectResult = await conn.execute<mysql.RowDataPacket[]>('select id, started_at from games order by started_at desc limit 1');
+        const game = gameSelectResult[0][0];
+        const turnSelectResult = await conn.query<mysql.RowDataPacket[]>('select id, turn_count, next_disc, end_at from turns where game_id = ? order by turn_count asc limit 1 offset ?', [game.id, turnCount]);
+        const turn = turnSelectResult[0][0];
+        const squareSelectResult = await conn.execute<mysql.RowDataPacket[]>('select id, turn_id, x, y, disc from squares where turn_id = ?', [turn.id]);
+        const squares = squareSelectResult[0];
+        const board = Array.from(Array(8)).map(() => Array.from(Array(8)));
+        squares.forEach((square) => {
+            board[square.y][square.x] = square.disc;
+        });
+        const responseBody = {
+            turnCount,
+            board,
+            nextDisc: turn.next_disc,
+            // TODO　決着がついている場合でも、game_resultsテーブルから取得する
+            winner: null
+        };
+        res.json(responseBody);
+    } finally {
+        await conn.end();
+    }
+});
 
 app.use(errorHandler);
 
@@ -81,5 +103,14 @@ function errorHandler(err: any, _req: express.Request, res: express.Response, _n
     console.error('UnExpected error occurred' , err);
     res.status(500).send({
         message:'UnExpected error occurred'
+    });
+}
+
+async function connectMySQL() {
+    return await mysql.createConnection({
+        host: 'localhost',
+        database: 'reversi',
+        user: 'reversi',
+        password: 'password'
     });
 }
