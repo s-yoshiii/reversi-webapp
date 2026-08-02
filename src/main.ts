@@ -66,7 +66,7 @@ app.post('/api/games', async(req,res)=> {
     res.status(201).end();
 });
 
-app.get('/api/games/:turnCount', async(req,res)=>{
+app.get('/api/games/latest/turns/:turnCount', async(req,res)=>{
     const turnCount = parseInt(req.params.turnCount);
     const conn = await connectMySQL();
     try {
