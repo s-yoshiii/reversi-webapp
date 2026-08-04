@@ -14,8 +14,8 @@ async function showBoard() {
     while (boardElement.firstChild){
         boardElement.removeChild(boardElement.firstChild);
     }
-    board.forEach((line) => {
-        line.forEach((square) => {
+    board.forEach((line, y) => {
+        line.forEach((square, x) => {
             // <div class="square">
             const squareElement = document.createElement('div');
             squareElement.className = 'square';
@@ -25,6 +25,11 @@ async function showBoard() {
                 stoneElement.className = `stone ${color}`;
 
                 squareElement.appendChild(stoneElement);
+            } else {
+                squareElement.addEventListener('click', async () => {
+                    const turnNewCount = turnCount + 1;
+                    await resisterTurn(turnNewCount, DARK, x, y);
+                });
             }
             boardElement.appendChild(squareElement);
         });
@@ -34,6 +39,24 @@ async function showBoard() {
 async function resisterGame() {
     await fetch('/api/games', {
         method: 'POST'
+    });
+}
+
+async function resisterTurn(turnCount, disc, x, y) {
+    const requestBody = {
+        turnCount,
+        move: {
+            disc,
+            x,
+            y
+        }
+    }
+    await fetch(`/api/games/latest/turns/${turnCount}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
     });
 }
 async function main() {
