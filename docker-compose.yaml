@@ -9,3 +9,5 @@ services:
       MYSQL_DATABASE: reversi
       MYSQL_USER: reversi
       MYSQL_PASSWORD: password
+    volumes:
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql

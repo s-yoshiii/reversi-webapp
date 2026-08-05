@@ -10,6 +10,7 @@ async function showBoard() {
     const response = await fetch(`/api/games/latest/turns/${turnCount}`);
     const responseBody = await response.json();
     const board = responseBody.board;
+    const nextDisc = responseBody.nextDisc;
 
     while (boardElement.firstChild){
         boardElement.removeChild(boardElement.firstChild);
@@ -27,8 +28,8 @@ async function showBoard() {
                 squareElement.appendChild(stoneElement);
             } else {
                 squareElement.addEventListener('click', async () => {
-                    const turnNewCount = turnCount + 1;
-                    await resisterTurn(turnNewCount, DARK, x, y);
+                    const nextTurnCount = turnCount + 1;
+                    await resisterTurn(nextTurnCount, nextDisc, x, y);
                 });
             }
             boardElement.appendChild(squareElement);
@@ -51,7 +52,7 @@ async function resisterTurn(turnCount, disc, x, y) {
             y
         }
     }
-    await fetch(`/api/games/latest/turns/${turnCount}`, {
+    await fetch(`/api/games/latest/turns/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -60,7 +61,7 @@ async function resisterTurn(turnCount, disc, x, y) {
     });
 }
 async function main() {
-    await showBoard();
     await resisterGame();
+    await showBoard();
 }
 main();
